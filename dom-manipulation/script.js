@@ -1,3 +1,6 @@
+// Simulated server URL (using JSONPlaceholder for mock data)
+const serverUrl = "https://jsonplaceholder.typicode.com/posts";
+
 // Load quotes from local storage or use default quotes
 const quotes = JSON.parse(localStorage.getItem("quotes")) || [
     { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
@@ -10,6 +13,37 @@ function saveQuotes() {
     localStorage.setItem("quotes", JSON.stringify(quotes));
     populateCategories(); // Update categories when saving new quotes
 }
+
+// Function to fetch quotes from the "server" (mock API)
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch(serverUrl);
+        const serverQuotes = await response.json();
+        const serverData = serverQuotes.map(item => ({
+            text: item.title, // Just for the sake of example
+            category: "General" // Hardcoded category for simplicity
+        }));
+        
+        resolveConflicts(serverData);
+    } catch (error) {
+        console.error("Error fetching data from server:", error);
+    }
+}
+
+// Function to resolve conflicts between local and server quotes
+function resolveConflicts(serverData) {
+    // Check if the server data is different from the local data
+    if (JSON.stringify(quotes) !== JSON.stringify(serverData)) {
+        // Simple conflict resolution: Server data takes precedence
+        quotes.length = 0; // Clear local quotes
+        quotes.push(...serverData); // Sync with server data
+        saveQuotes();
+        alert("Quotes have been updated from the server.");
+    }
+}
+
+// Periodically check for updates from the server
+setInterval(fetchQuotesFromServer, 30000); // Sync every 30 seconds
 
 // Function to display a random quote
 function showRandomQuote() {

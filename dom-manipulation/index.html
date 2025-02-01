@@ -32,6 +32,10 @@
     <button id="exportQuotes" onclick="exportToJsonFile()">Export Quotes</button>
     <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)">
 
+    <!-- Sync Status and Conflict Resolution -->
+    <div id="syncStatus" style="color: green; margin-top: 10px;"></div>
+    <div id="conflictResolution" style="color: red; margin-top: 10px;"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
