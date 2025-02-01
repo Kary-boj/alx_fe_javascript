@@ -42,6 +42,25 @@ function resolveConflicts(serverData) {
     }
 }
 
+// Function to sync quotes: Fetch and update quotes between local storage and server
+async function syncQuotes() {
+    try {
+        // Fetch quotes from the server
+        const response = await fetch(serverUrl);
+        const serverQuotes = await response.json();
+        const serverData = serverQuotes.map(item => ({
+            text: item.title, // Example for simulation
+            category: "General" // Hardcoded category
+        }));
+
+        // Compare and resolve conflicts
+        resolveConflicts(serverData);
+        console.log("Sync completed successfully.");
+    } catch (error) {
+        console.error("Error syncing quotes with the server:", error);
+    }
+}
+
 // Function to send updated quotes to the server using POST request
 async function sendQuotesToServer() {
     try {
