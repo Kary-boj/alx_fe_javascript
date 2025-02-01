@@ -23,7 +23,7 @@ async function fetchQuotesFromServer() {
             text: item.title, // Just for the sake of example
             category: "General" // Hardcoded category for simplicity
         }));
-
+        
         resolveConflicts(serverData);
     } catch (error) {
         console.error("Error fetching data from server:", error);
@@ -39,6 +39,46 @@ function resolveConflicts(serverData) {
         quotes.push(...serverData); // Sync with server data
         saveQuotes();
         alert("Quotes have been updated from the server.");
+    }
+}
+
+// Function to sync quotes: Fetch and update quotes between local storage and server
+async function syncQuotes() {
+    try {
+        // Fetch quotes from the server
+        const response = await fetch(serverUrl);
+        const serverQuotes = await response.json();
+        const serverData = serverQuotes.map(item => ({
+            text: item.title, // Example for simulation
+            category: "General" // Hardcoded category
+        }));
+
+        // Compare and resolve conflicts
+        resolveConflicts(serverData);
+
+        // Notify that quotes have been synced with the server
+        console.log("Quotes synced with server!");
+        alert("Quotes synced with server!");  // Alert the user
+    } catch (error) {
+        console.error("Error syncing quotes with the server:", error);
+    }
+}
+
+// Function to send updated quotes to the server using POST request
+async function sendQuotesToServer() {
+    try {
+        const response = await fetch(serverUrl, {
+            method: "POST", // Send data to the server (POST request)
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(quotes) // Send the updated quotes as the request body
+        });
+
+        const result = await response.json();
+        console.log("Successfully synced to server:", result);
+    } catch (error) {
+        console.error("Error sending data to server:", error);
     }
 }
 
@@ -75,6 +115,9 @@ function addQuote() {
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
     alert("Quote added successfully!");
+
+    // Send the updated quotes to the server
+    sendQuotesToServer();
 }
 
 // Function to create and add the form dynamically
@@ -194,31 +237,6 @@ function importFromJsonFile(event) {
     };
     fileReader.readAsText(event.target.files[0]);
 }
-
-// Function to sync quotes: Fetch and update quotes between local storage and server
-async function syncQuotes() {
-    try {
-        // Fetch quotes from the server
-        const response = await fetch(serverUrl);
-        const serverQuotes = await response.json();
-        const serverData = serverQuotes.map(item => ({
-            text: item.title, // Example for simulation
-            category: "General" // Hardcoded category
-        }));
-
-        // Compare and resolve conflicts
-        resolveConflicts(serverData);
-        
-        // Notify that quotes have been synced with the server
-        console.log("Quotes synced with server!");
-        alert("Quotes synced with server!");
-    } catch (error) {
-        console.error("Error syncing quotes with the server:", error);
-    }
-}
-
-// Periodically sync quotes every 30 seconds
-setInterval(syncQuotes, 30000);
 
 document.addEventListener("DOMContentLoaded", () => {
     createAddQuoteForm();
