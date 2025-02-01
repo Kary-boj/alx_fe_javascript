@@ -42,6 +42,24 @@ function resolveConflicts(serverData) {
     }
 }
 
+// Function to send updated quotes to the server using POST request
+async function sendQuotesToServer() {
+    try {
+        const response = await fetch(serverUrl, {
+            method: "POST", // Send data to the server (POST request)
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(quotes) // Send the updated quotes as the request body
+        });
+
+        const result = await response.json();
+        console.log("Successfully synced to server:", result);
+    } catch (error) {
+        console.error("Error sending data to server:", error);
+    }
+}
+
 // Periodically check for updates from the server
 setInterval(fetchQuotesFromServer, 30000); // Sync every 30 seconds
 
@@ -75,6 +93,9 @@ function addQuote() {
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
     alert("Quote added successfully!");
+
+    // Send the updated quotes to the server
+    sendQuotesToServer();
 }
 
 // Function to create and add the form dynamically
