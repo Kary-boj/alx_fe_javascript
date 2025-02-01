@@ -8,6 +8,7 @@ const quotes = JSON.parse(localStorage.getItem("quotes")) || [
 // Function to save quotes to local storage
 function saveQuotes() {
     localStorage.setItem("quotes", JSON.stringify(quotes));
+    populateCategories(); // Update categories when saving new quotes
 }
 
 // Function to display a random quote
@@ -70,13 +71,61 @@ function createAddQuoteForm() {
     importInput.accept = ".json";
     importInput.addEventListener("change", importFromJsonFile);
     
+    const categoryFilter = document.createElement("select");
+    categoryFilter.id = "categoryFilter";
+    categoryFilter.addEventListener("change", filterQuotes);
+    
     formContainer.appendChild(inputText);
     formContainer.appendChild(inputCategory);
     formContainer.appendChild(addButton);
     formContainer.appendChild(exportButton);
     formContainer.appendChild(importInput);
+    formContainer.appendChild(categoryFilter);
     
     document.body.appendChild(formContainer);
+    populateCategories();
+}
+
+// Function to populate category filter dropdown
+function populateCategories() {
+    const categoryFilter = document.getElementById("categoryFilter");
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+    const categories = [...new Set(quotes.map(q => q.category))];
+    categories.forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        categoryFilter.appendChild(option);
+    });
+    
+    // Restore last selected category filter
+    const lastSelectedCategory = localStorage.getItem("selectedCategory");
+    if (lastSelectedCategory) {
+        categoryFilter.value = lastSelectedCategory;
+        filterQuotes();
+    }
+}
+
+// Function to filter quotes based on selected category
+function filterQuotes() {
+    const selectedCategory = document.getElementById("categoryFilter").value;
+    localStorage.setItem("selectedCategory", selectedCategory);
+    
+    const quoteDisplay = document.getElementById("quoteDisplay");
+    quoteDisplay.innerHTML = "";
+    
+    const filteredQuotes = selectedCategory === "all" ? quotes : quotes.filter(q => q.category === selectedCategory);
+    
+    if (filteredQuotes.length === 0) {
+        quoteDisplay.innerHTML = "No quotes available for this category.";
+        return;
+    }
+    
+    filteredQuotes.forEach(q => {
+        const quoteElement = document.createElement("p");
+        quoteElement.innerHTML = `${q.text} - (<strong>${q.category}</strong>)`;
+        quoteDisplay.appendChild(quoteElement);
+    });
 }
 
 // Function to export quotes as a JSON file
